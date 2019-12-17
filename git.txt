@@ -23,12 +23,19 @@
 		git push -u origin dev
 		
 dev分支合并到master分支
+	拉去远程dev最新内容到本地
+		git fetch origin dev
+	切换到本地master分支
+		git switch master
+	合并远程dev分支内容到本地master分支
+		git merge origin/dev
+	将本地master分支推送到远程master分支
+		git push origin master
 	
-		
-	
 
 
 
+常用命令：
 
 git clone <远程库地址>
 	将远程库master分支克隆到本地，并且本地master与远程master已相关联
@@ -84,3 +91,35 @@ git push
 git push --delete <远程库名> <远程分支名>
 	删除远程分支
 
+git add <文件名>
+	将修改从工作区添加到暂存区
+
+git commit -m <提交说明>
+	将暂存区的所有内容提交到本地仓库
+	
+git status
+	1.查看当前工作区有哪些修改未提交到暂存区
+	2.查看暂存区有哪些修改未提交到版本库
+
+git diff
+	查看本地和暂存区的不同
+
+git log
+git reflog
+	这两个命令都是查询由近到远的提交日志记录，区别在于：
+	git reflog可查询所有的commit(提交)，reset(回退)记录；
+	git log只能查看commit(提交)记录，并且被回退之前的提交记录查看不了的
+	
+git reset --hard <提交记录的版本号>
+	本地仓库回退到某个版本
+	
+git reset HEAD <文件名>
+	撤销添加到暂存区的修改
+
+git checkout
+	撤销工作区的修改
+	1.如果工作区的修改未添加到暂存区，可以使用git checkout -- <文件名>进行撤销
+	2.如果工作区的修改已添加到暂存区，可试用git checkout <HEAD版本号> <文件名>进行撤销，并且暂存区中的修改也会被撤销（相当于还原该文件）
+	
+ssh-keygen -t rsa -C "gitHub账户对应邮箱信息"
+	在C:\Users\15151\.ssh\目录下生成公钥id_rsa.pub和私钥id_rsa，将id_rsa.pub内容添加到gitHub SSH keys，这样本地版本库就可以向gitHub远程仓库推送内容了
