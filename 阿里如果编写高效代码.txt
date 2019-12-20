@@ -1,0 +1,93 @@
+常量&变量
+	1、直接赋值常量值，禁止声明新对象 
+		Long l = new Long(1L); 
+		Long i = 1L;
+	2、当成员变量值无需改变时，尽量定义为静态常量常量
+	3、尽量使用基本数据类型，避免自动装箱和拆箱
+	4、如果变量初始值会被覆盖，就没必要给变量赋初始值
+	5、尽量使用函数内的基本类型临时变量
+		在函数内，基本类型的参数和临时变量都保存在栈（Stack）中，访问速度较快；对象类型的参数和临时变量的引用都保存在栈（Stack）中，内容都保存在堆（Heap）中，访问速度较慢。在类中，任何类型的成员变量都保存在堆（Heap）中，访问速度较慢。
+	*6、尽量不要在循环体外定义变量
+		在老版JDK中，建议“尽量不要在循环体内定义变量”，但是在新版的JDK中已经做了优化。通过对编译后的字节码分析，变量定义在循环体外和循环体内没有本质的区别，运行效率基本上是一样的。
+		反而，根据“ 局部变量作用域最小化 ”原则，变量定义在循环体内更科学更便于维护，避免了延长大对象生命周期导致延缓回收问题 。
+	7、不可变的静态常量，尽量使用非线程安全类
+	8、不可变的成员变量，尽量使用非线程安全类
+
+对象&类
+	1、禁止使用Json做对象间的转换
+		UserVO userVO = Json.parse(Json.toJsonString(userDO)， UserVO.class);
+	2、尽量不使用反射赋值对象，性能会有所下降
+	3、采用Lambda表达式替换内部匿名类
+		Lambda表达式在大多数虚拟机中采用invokeDynamic指令实现，相对于匿名内部类在效率上会更高一些。
+	*4、尽量避免定义不必要的子类，多一个类就需要多一份类加载，所以尽量避免定义不必要的子类。
+		Map<String, String> map = new HashMap<>(){
+			put("test", "test");
+		}
+		
+		Map<String, String> map = new HashMap<>();
+		map.("test", "test");
+	5、尽量指定类的final修饰符
+		为类指定final修饰符，可以让该类不可以被继承。如果指定了一个类为final，则该类所有的方法都是final的，Java编译器会寻找机会内联所有的final方法。内联对于提升Java运行效率作用重大，具体可参见Java运行期优化，能够使性能平均提高50%
+	
+方法
+	1、把跟类成员变量无关的方法声明成静态方法
+	2、尽量使用基本数据类型作为方法参数类型，避免不必要的装箱、拆箱和空指针判断
+	3、尽量使用基本数据类型作为方法返回值类型，避免不必要的装箱、拆箱和空指针判断
+	4、协议方法参数值非空，避免不必要的空指针判断，协议编程，可以@NonNull和@Nullable标注参数，是否遵循全凭调用者自觉。
+		public static boolean isValid(@NonNull UserDO user) {
+		  return Boolean.TRUE.equals(user.getIsValid());
+		}
+	5、协议方法返回值非空，避免不必要的空指针判断
+		// 定义接口
+		public interface OrderService {
+			@NonNull
+			public List<OrderVO> queryUserOrder(Long userId);
+		}
+	6、被调用方法已支持判空处理，调用方法无需再进行判空处理
+	7、尽量避免不必要的函数封装
+		方法调用会引起入栈和出栈，导致消耗更多的CPU和内存，应当尽量避免不必要的函数封装。当然，为了使代码更简洁、更清晰、更易维护，增加一定的方法调用所带来的性能损耗是值得的。
+	8、尽量指定方法的final修饰符
+		方法指定final修饰符，可以让方法不可以被重写，Java编译器会寻找机会内联所有的final方法。内联对于提升Java运行效率作用重大，具体可参见Java运行期优化，能够使性能平均提高50%。
+		注意：所有的private方法会隐式地被指定final修饰符，所以无须再为其指定final修饰符。
+	
+表达式
+	1、尽量减少方法的重复调用
+		List<UserDO> userList = ...;
+		for (int i = 0; i < userList.size(); i++) {
+			...
+		}
+		
+		List<UserDO> userList = ...;
+		int userLength = userList.size();
+		for (int i = 0; i < userLength; i++) {
+			...
+		}
+	
+	2、尽量避免不必要的方法调用
+		List<UserDO> userList = userDAO.queryActive();
+		if (isAll) {
+			userList = userDAO.queryAll();
+		}
+		
+		List<UserDO> userList;
+		if (isAll) {
+			userList = userDAO.queryAll();
+		} else {
+			userList = userDAO.queryActive();
+		}
+	3、尽量使用移位来代替正整数乘除
+		用移位操作可以极大地提高性能。对于乘除2^n(n为正整数)的正整数计算，可以用移位操作来代替。
+	4、提取公共表达式，避免重复计算
+	5、尽量不在条件表达式中用!取反
+		使用!取反会多一次计算，如果没有必要则优化掉。
+	6、对于多常量选择分支，尽量使用switch语句而不是if-else语句
+		if-else语句，每个if条件语句都要加装计算，直到if条件语句为true为止。switch语句进行了跳转优化，Java中采用tableswitch或lookupswitch指令实现，对于多常量选择分支处理效率更高。经过试验证明：在每个分支出现概率相同的情况下，低于5个分支时if-else语句效率更高，高于5个分支时switch语句效率更高。
+	
+字符串
+	1、尽量不要使用正则表达式匹配
+		正则表达式匹配效率较低，尽量使用字符串匹配操作。
+	2、尽量使用字符替换字符串
+		字符串的长度不确定，而字符的长度固定为1，查找和匹配的效率自然提高了。
+		String target = "a:1,b:2,c:3,d:4".replace(":", "=");
+		
+		String target = "a:1,b:2,c:3,d:4".replace(':', '=);
