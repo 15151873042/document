@@ -91,3 +91,67 @@
 		String target = "a:1,b:2,c:3,d:4".replace(":", "=");
 		
 		String target = "a:1,b:2,c:3,d:4".replace(':', '=);
+	3、尽量使用StringBuilder进行字符串拼接
+	4、不要使用""+转化字符串
+		使用""+进行字符串转化，使用方便但是效率低，建议使用String.valueOf.
+
+数组
+	1、不要使用循环拷贝数组，尽量使用System.arraycopy拷贝数组
+	2、集合转化为类型T数组时，尽量传入空数组T[0]
+		将集合转换为数组有2种形式：toArray(new T[n])和toArray(new T[0])。在旧的Java版本中，建议使用toArray(new T[n])，因为创建数组时所需的反射调用非常慢。在OpenJDK6后，反射调用是内在的，使得性能得以提高，toArray(new T[0])比toArray(new T[n])效率更高。此外，toArray(new T[n])比toArray(new T[0])多获取一次列表大小，如果计算列表大小耗时过长，也会导致toArray(new T[n])效率降低。
+
+	3、集合转化为Object数组时，尽量使用toArray()方法
+
+集合
+	1、初始化集合时，尽量指定集合大小
+		Java集合初始化时都会指定一个默认大小，当默认大小不再满足数据需求时就会扩容，每次扩容的时间复杂度有可能是O(n)
+	2、不要使用循环拷贝集合，尽量使用JDK提供的方法拷贝集合
+		JDK提供的方法可以一步指定集合的容量，避免多次扩容浪费时间和空间。同时，这些方法的底层也是调用System.arraycopy方法实现，进行数据的批量拷贝效率更高。
+	3、尽量使用Arrays.asList转化数组为列表
+	4、Map要用entrySet()方法去迭代
+	5、不要使用size方法检测空，必须使用isEmpty方法检测空
+		使用size方法来检测空逻辑上没有问题，但使用isEmpty方法使得代码更易读，并且可以获得更好的性能。任何isEmpty方法实现的时间复杂度都是O(1)，但是某些size方法实现的时间复杂度有可能是O(n)。
+	6、非随机访问的List，尽量使用迭代代替随机访问
+		对于列表，可分为随机访问和非随机访问两类，可以用是否实现RandomAccess接口判断。随机访问列表，直接通过get获取数据不影响效率。而非随机访问列表，通过get获取数据效率极低。
+		LinkedList<UserDO> userDOList = ...;
+		int size = userDOList.size();
+		for (int i = 0; i < size; i++) {
+			UserDO userDO = userDOList.get(i);
+			...
+		}	
+		
+		LinkedList<UserDO> userDOList = ...;
+		for (UserDO userDO : userDOList) {
+			...
+		}
+	7、尽量使用HashSet判断值存在
+		在Java集合类库中，List的contains方法普遍时间复杂度是O(n)，而HashSet的时间复杂度为O(1)。如果需要频繁调用contains方法查找数据，可以先将List转换成HashSet。
+		
+	8、避免先判断存在再进行获取
+		如果需要先判断存在再进行获取，可以直接获取并判断空，从而避免了二次查找操作。比如先调用contains(),再调用get()
+	
+异常：
+	1、直接捕获对应的异常
+		直接捕获对应的异常，避免用instanceof判断，效率更高代码更简洁。
+	2、尽量避免在循环中捕获异常
+		当循环体抛出异常后，无需循环继续执行时，没有必要在循环体中捕获异常。因为，过多的捕获异常会降低程序执行效率。
+	3、禁止使用异常控制业务流程
+		相对于条件表达式，异常的处理效率更低。
+
+缓冲区StringBuffer
+	1、初始化时尽量指定缓冲区大小
+	2、尽量重复使用同一缓冲区
+	3、尽量设计使用同一缓冲区
+	4、尽量使用缓冲流减少IO操作
+		使用缓冲流BufferedReader、BufferedWriter、BufferedInputStream、BufferedOutputStream等，可以大幅较少IO次数并提升IO速度。
+		
+线程
+	1、在单线程中，尽量使用非线程安全类
+		使用非线程安全类，避免了不必要的同步开销
+	2、在多线程中，尽量使用线程安全类
+		使用线程安全类，比自己实现的同步代码更简洁更高效。
+	3、尽量减少同步代码块范围
+		在一个方法中，可能只有一小部分的逻辑是需要同步控制的，如果同步控制了整个方法会影响执行效率。所以，尽量减少同步代码块的范围，只对需要进行同步的代码进行同步。
+	4、尽量使用线程池减少线程开销
+		多线程中两个必要的开销：线程的创建和上下文切换。采用线程池，可以尽量地避免这些开销。
+
